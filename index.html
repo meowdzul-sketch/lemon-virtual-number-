@@ -1,0 +1,1536 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lemon 🍋 - Platform Nombor Virtual</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #FFF9C4 0%, #FFEB3B 100%);
+            min-height: 100vh;
+        }
+
+        .lemon-gradient {
+            background: linear-gradient(135deg, #FFEB3B 0%, #FDD835 100%);
+        }
+
+        .lime-accent {
+            color: #7CB342;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #FFEB3B 0%, #FDD835 100%);
+            color: #333;
+            font-weight: 600;
+            padding: 12px 24px;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 235, 59, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 235, 59, 0.6);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #333;
+            font-weight: 600;
+            padding: 12px 24px;
+            border-radius: 12px;
+            border: 2px solid #FFEB3B;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            background: #FFFDE7;
+            transform: translateY(-2px);
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .service-card {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            border: 2px solid #FFF9C4;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .service-card:hover {
+            border-color: #FFEB3B;
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(255, 235, 59, 0.3);
+        }
+
+        .service-card.selected {
+            border-color: #7CB342;
+            background: #F1F8E9;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #E0E0E0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #FFEB3B;
+            box-shadow: 0 0 0 3px rgba(255, 235, 59, 0.1);
+        }
+
+        .balance-display {
+            background: linear-gradient(135deg, #7CB342 0%, #8BC34A 100%);
+            color: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 8px 24px rgba(124, 179, 66, 0.3);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 80%;
+            max-width: 300px;
+            height: 100vh;
+            background: white;
+            box-shadow: -4px 0 24px rgba(0, 0, 0, 0.2);
+            transition: right 0.3s ease;
+            z-index: 1000;
+        }
+
+        .mobile-menu.active {
+            right: 0;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+    </style>
+</head>
+<body>
+
+  <!-- Overlay -->
+    <div class="overlay" id="overlay" onclick="closeMobileMenu()"></div>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" id="mobileMenu">
+        <div class="p-6">
+            <div class="flex justify-between items-center mb-8">
+                <h3 class="text-2xl font-bold">🍋 Menu</h3>
+                <button onclick="closeMobileMenu()" class="text-gray-600">
+                    <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <nav class="space-y-4" id="mobileNavLinks">
+                <!-- Links akan diisi oleh JavaScript -->
+            </nav>
+        </div>
+    </div>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-2 cursor-pointer" onclick="navigateTo('home')">
+                    <span class="text-3xl">🍋</span>
+                    <span class="text-2xl font-bold lime-accent">Lemon</span>
+                </div>
+
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex items-center space-x-6" id="desktopNav">
+                    <!-- Links akan diisi oleh JavaScript -->
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <button class="md:hidden text-gray-600" onclick="toggleMobileMenu()">
+                    <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4 6h16M4 12h16M4 18h16"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="container mx-auto px-4 py-8">
+        
+        <!-- HOME PAGE -->
+        <div id="homePage" class="fade-in">
+            <div class="text-center mb-12">
+                <h1 class="text-5xl md:text-6xl font-bold mb-4">
+                    <span class="lime-accent">Selamat Datang ke</span>
+                    <br>
+                    <span class="text-6xl md:text-7xl">🍋 Lemon</span>
+                </h1>
+                <p class="text-xl text-gray-700 mb-8">
+                    Platform Nombor Virtual Terpercaya di Malaysia
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-6 mb-12">
+                <div class="card text-center">
+                    <div class="text-5xl mb-4">📱</div>
+                    <h3 class="text-xl font-bold mb-2">Nombor Virtual</h3>
+                    <p class="text-gray-600">Dapatkan nombor Malaysia untuk pelbagai perkhidmatan</p>
+                </div>
+                <div class="card text-center">
+                    <div class="text-5xl mb-4">💳</div>
+                    <h3 class="text-xl font-bold mb-2">Bayaran Mudah</h3>
+                    <p class="text-gray-600">Top-up mudah melalui ToyyibPay</p>
+                </div>
+                <div class="card text-center">
+                    <div class="text-5xl mb-4">⚡</div>
+                    <h3 class="text-xl font-bold mb-2">Pantas & Selamat</h3>
+                    <p class="text-gray-600">Terima OTP dalam masa nyata</p>
+                </div>
+            </div>
+
+            <div class="text-center space-x-4">
+                <button onclick="navigateTo('register')" class="btn-primary text-lg px-8 py-4">
+                    Daftar Sekarang
+                </button>
+                <button onclick="navigateTo('login')" class="btn-secondary text-lg px-8 py-4">
+                    Log Masuk
+                </button>
+            </div>
+
+            <div class="mt-16 card">
+                <h2 class="text-2xl font-bold mb-6 text-center">Perkhidmatan Tersedia</h2>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    <div class="text-center p-4 bg-yellow-50 rounded-lg">☕ Zus Coffee</div>
+                    <div class="text-center p-4 bg-yellow-50 rounded-lg">🍵 Chagee</div>
+                    <div class="text-center p-4 bg-yellow-50 rounded-lg">🧋 Tealive</div>
+                    <div class="text-center p-4 bg-yellow-50 rounded-lg">🍗 KFC</div>
+                    <div class="text-center p-4 bg-yellow-50 rounded-lg">🍕 Foodpanda</div>
+                    <div class="text-center p-4 bg-yellow-50 rounded-lg">➕ Dan lain-lain</div>
+                </div>
+            </div>
+        </div>
+
+      <!-- REGISTER PAGE -->
+        <div id="registerPage" class="hidden fade-in">
+            <div class="max-w-md mx-auto">
+                <div class="card">
+                    <div class="text-center mb-6">
+                        <span class="text-5xl">🍋</span>
+                        <h2 class="text-3xl font-bold mt-4 mb-2">Daftar Akaun</h2>
+                        <p class="text-gray-600">Mulakan perjalanan anda dengan Lemon</p>
+                    </div>
+
+                    <form onsubmit="handleRegister(event)">
+                        <div class="mb-4">
+                            <label class="block text-gray-700 font-semibold mb-2">Email</label>
+                            <input 
+                                type="email" 
+                                id="registerEmail" 
+                                class="input-field" 
+                                placeholder="nama@email.com"
+                                required
+                            >
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="block text-gray-700 font-semibold mb-2">Nombor Telefon</label>
+                            <input 
+                                type="tel" 
+                                id="registerPhone" 
+                                class="input-field" 
+                                placeholder="+60123456789"
+                                required
+                            >
+                        </div>
+
+                        <div class="mb-6">
+                            <label class="block text-gray-700 font-semibold mb-2">Kata Laluan</label>
+                            <input 
+                                type="password" 
+                                id="registerPassword" 
+                                class="input-field" 
+                                placeholder="••••••••"
+                                required
+                            >
+                        </div>
+
+                        <button type="submit" class="btn-primary w-full mb-4">
+                            Daftar
+                        </button>
+
+                        <p class="text-center text-gray-600">
+                            Sudah ada akaun? 
+                            <span onclick="navigateTo('login')" class="lime-accent font-semibold cursor-pointer hover:underline">
+                                Log Masuk
+                            </span>
+                        </p>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- OTP VERIFICATION MODAL -->
+        <div id="otpModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div class="card max-w-md w-full mx-4">
+                <div class="text-center mb-6">
+                    <span class="text-5xl">📱</span>
+                    <h2 class="text-2xl font-bold mt-4 mb-2">Verifikasi OTP</h2>
+                    <p class="text-gray-600">Masukkan kod 6 digit yang dihantar ke telefon anda</p>
+                </div>
+
+                <form onsubmit="handleVerifyOtp(event)">
+                    <div class="mb-6">
+                        <input 
+                            type="text" 
+                            id="otpInput" 
+                            class="input-field text-center text-2xl tracking-widest" 
+                            placeholder="000000"
+                            maxlength="6"
+                            pattern="[0-9]{6}"
+                            required
+                        >
+                    </div>
+
+                    <button type="submit" class="btn-primary w-full mb-3">
+                        Sahkan OTP
+                    </button>
+
+                    <button type="button" onclick="closeOtpModal()" class="btn-secondary w-full">
+                        Batal
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- LOGIN PAGE -->
+        <div id="loginPage" class="hidden fade-in">
+            <div class="max-w-md mx-auto">
+                <div class="card">
+                    <div class="text-center mb-6">
+                        <span class="text-5xl">🍋</span>
+                        <h2 class="text-3xl font-bold mt-4 mb-2">Log Masuk</h2>
+                        <p class="text-gray-600">Selamat kembali ke Lemon</p>
+                    </div>
+
+                    <form onsubmit="handleLogin(event)">
+                        <div class="mb-4">
+                            <label class="block text-gray-700 font-semibold mb-2">Email</label>
+                            <input 
+                                type="email" 
+                                id="loginEmail" 
+                                class="input-field" 
+                                placeholder="nama@email.com"
+                                required
+                            >
+                        </div>
+
+                        <div class="mb-6">
+                            <label class="block text-gray-700 font-semibold mb-2">Kata Laluan</label>
+                            <input 
+                                type="password" 
+                                id="loginPassword" 
+                                class="input-field" 
+                                placeholder="••••••••"
+                                required
+                            >
+                        </div>
+
+                        <button type="submit" class="btn-primary w-full mb-4">
+                            Log Masuk
+                        </button>
+
+                        <p class="text-center text-gray-600">
+                            Belum ada akaun? 
+                            <span onclick="navigateTo('register')" class="lime-accent font-semibold cursor-pointer hover:underline">
+                                Daftar Sekarang
+                            </span>
+                        </p>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+      <!-- DASHBOARD PAGE -->
+        <div id="dashboardPage" class="hidden fade-in">
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold mb-2">Dashboard</h1>
+                <p class="text-gray-600">Selamat datang kembali! 🍋</p>
+            </div>
+
+            <!-- Balance Card -->
+            <div class="balance-display mb-8">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <p class="text-white text-opacity-90 mb-1">Baki Semasa</p>
+                        <h2 class="text-4xl font-bold" id="balanceDisplay">RM 0.00</h2>
+                    </div>
+                    <div class="text-5xl">💰</div>
+                </div>
+                <button onclick="navigateTo('topup')" class="btn-secondary mt-4 bg-white">
+                    Top Up Sekarang
+                </button>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="grid md:grid-cols-3 gap-6 mb-8">
+                <div class="card">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 mb-1">Jumlah Pembelian</p>
+                            <h3 class="text-2xl font-bold" id="totalPurchases">0</h3>
+                        </div>
+                        <div class="text-4xl">📊</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 mb-1">Nombor Aktif</p>
+                            <h3 class="text-2xl font-bold" id="activeNumbers">0</h3>
+                        </div>
+                        <div class="text-4xl">📱</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 mb-1">Perkhidmatan</p>
+                            <h3 class="text-2xl font-bold">6+</h3>
+                        </div>
+                        <div class="text-4xl">⭐</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card mb-8">
+                <h3 class="text-xl font-bold mb-4">Tindakan Pantas</h3>
+                <div class="grid md:grid-cols-2 gap-4">
+                    <button onclick="navigateTo('purchase')" class="btn-primary text-left flex items-center justify-between p-4">
+                        <div class="flex items-center">
+                            <span class="text-2xl mr-3">🛒</span>
+                            <div>
+                                <p class="font-bold">Beli Nombor</p>
+                                <p class="text-sm opacity-75">RM1.00 setiap nombor</p>
+                            </div>
+                        </div>
+                        <span>→</span>
+                    </button>
+
+                    <button onclick="navigateTo('topup')" class="btn-secondary text-left flex items-center justify-between p-4">
+                        <div class="flex items-center">
+                            <span class="text-2xl mr-3">💳</span>
+                            <div>
+                                <p class="font-bold">Top Up Baki</p>
+                                <p class="text-sm opacity-75">Min. RM10.00</p>
+                            </div>
+                        </div>
+                        <span>→</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Recent Transactions -->
+            <div class="card">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-bold">Transaksi Terkini</h3>
+                    <button onclick="navigateTo('history')" class="text-sm lime-accent font-semibold hover:underline">
+                        Lihat Semua
+                    </button>
+                </div>
+                <div id="recentTransactions">
+                    <p class="text-center text-gray-500 py-8">Tiada transaksi lagi</p>
+                </div>
+            </div>
+        </div>
+
+      <!-- PURCHASE PAGE -->
+        <div id="purchasePage" class="hidden fade-in">
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold mb-2">Beli Nombor Virtual</h1>
+                <p class="text-gray-600">Pilih perkhidmatan yang anda perlukan</p>
+            </div>
+
+            <!-- Balance Warning -->
+            <div id="lowBalanceWarning" class="hidden bg-red-100 border-2 border-red-300 rounded-lg p-4 mb-6">
+                <div class="flex items-center">
+                    <span class="text-2xl mr-3">⚠️</span>
+                    <div>
+                        <p class="font-bold text-red-800">Baki Tidak Mencukupi</p>
+                        <p class="text-red-700">Sila top-up sekurang-kurangnya RM1.00 untuk membeli nombor</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Current Balance -->
+            <div class="card mb-8 bg-gradient-to-r from-yellow-100 to-yellow-200">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <p class="text-gray-700 mb-1">Baki Anda</p>
+                        <h3 class="text-3xl font-bold lime-accent" id="purchaseBalance">RM 0.00</h3>
+                    </div>
+                    <button onclick="navigateTo('topup')" class="btn-primary">
+                        Top Up
+                    </button>
+                </div>
+            </div>
+
+            <!-- Services Grid -->
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Zus Coffee - Provider 1 -->
+                <div class="service-card" onclick="selectService('zus-p1')">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center">
+                            <span class="text-3xl mr-3">☕</span>
+                            <div>
+                                <h3 class="font-bold">Zus Coffee</h3>
+                                <p class="text-xs text-gray-500">Provider 1</p>
+                            </div>
+                        </div>
+                        <span class="font-bold text-lg lime-accent">RM1.00</span>
+                    </div>
+                    <button class="btn-primary w-full text-sm">
+                        Beli Sekarang
+                    </button>
+                </div>
+
+                <!-- Zus Coffee - Provider 2 -->
+                <div class="service-card" onclick="selectService('zus-p2')">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center">
+                            <span class="text-3xl mr-3">☕</span>
+                            <div>
+                                <h3 class="font-bold">Zus Coffee</h3>
+                                <p class="text-xs text-gray-500">Provider 2</p>
+                            </div>
+                        </div>
+                        <span class="font-bold text-lg lime-accent">RM1.00</span>
+                    </div>
+                    <button class="btn-primary w-full text-sm">
+                        Beli Sekarang
+                    </button>
+                </div>
+
+                <!-- Chagee -->
+                <div class="service-card" onclick="selectService('chagee')">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center">
+                            <span class="text-3xl mr-3">🍵</span>
+                            <div>
+                                <h3 class="font-bold">Chagee</h3>
+                                <p class="text-xs text-gray-500">Provider 2</p>
+                            </div>
+                        </div>
+                        <span class="font-bold text-lg lime-accent">RM1.00</span>
+                    </div>
+                    <button class="btn-primary w-full text-sm">
+                        Beli Sekarang
+                    </button>
+                </div>
+
+                <!-- Tealive -->
+                <div class="service-card" onclick="selectService('tealive')">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center">
+                            <span class="text-3xl mr-3">🧋</span>
+                            <div>
+                                <h3 class="font-bold">Tealive</h3>
+                                <p class="text-xs text-gray-500">Provider 2</p>
+                            </div>
+                        </div>
+                        <span class="font-bold text-lg lime-accent">RM1.00</span>
+                    </div>
+                    <button class="btn-primary w-full text-sm">
+                        Beli Sekarang
+                    </button>
+                </div>
+
+                <!-- KFC -->
+                <div class="service-card" onclick="selectService('kfc')">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center">
+                            <span class="text-3xl mr-3">🍗</span>
+                            <div>
+                                <h3 class="font-bold">KFC</h3>
+                                <p class="text-xs text-gray-500">Provider 2</p>
+                            </div>
+                        </div>
+                        <span class="font-bold text-lg lime-accent">RM1.00</span>
+                    </div>
+                    <button class="btn-primary w-full text-sm">
+                        Beli Sekarang
+                    </button>
+                </div>
+
+                <!-- Foodpanda -->
+                <div class="service-card" onclick="selectService('foodpanda')">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center">
+                            <span class="text-3xl mr-3">🍕</span>
+                            <div>
+                                <h3 class="font-bold">Foodpanda</h3>
+                                <p class="text-xs text-gray-500">Provider 2</p>
+                            </div>
+                        </div>
+                        <span class="font-bold text-lg lime-accent">RM1.00</span>
+                    </div>
+                    <button class="btn-primary w-full text-sm">
+                        Beli Sekarang
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- TOP UP PAGE -->
+        <div id="topupPage" class="hidden fade-in">
+            <div class="max-w-2xl mx-auto">
+                <div class="mb-8">
+                    <h1 class="text-3xl font-bold mb-2">Top Up Baki</h1>
+                    <p class="text-gray-600">Tambah baki untuk membeli nombor virtual</p>
+                </div>
+
+                <div class="card mb-6">
+                    <div class="mb-6">
+                        <p class="text-gray-700 mb-1">Baki Semasa</p>
+                        <h3 class="text-3xl font-bold lime-accent" id="topupBalance">RM 0.00</h3>
+                    </div>
+
+                    <form onsubmit="handleTopup(event)">
+                        <div class="mb-6">
+                            <label class="block text-gray-700 font-semibold mb-2">Jumlah Top Up (Minimum RM10)</label>
+                            <input 
+                                type="number" 
+                                id="topupAmount" 
+                                class="input-field" 
+                                placeholder="10"
+                                min="10"
+                                step="1"
+                                required
+                            >
+                        </div>
+
+                        <!-- Quick Amount Buttons -->
+                        <div class="grid grid-cols-4 gap-3 mb-6">
+                            <button type="button" onclick="setTopupAmount(10)" class="btn-secondary py-3">
+                                RM10
+                            </button>
+                            <button type="button" onclick="setTopupAmount(20)" class="btn-secondary py-3">
+                                RM20
+                            </button>
+                            <button type="button" onclick="setTopupAmount(50)" class="btn-secondary py-3">
+                                RM50
+                            </button>
+                            <button type="button" onclick="setTopupAmount(100)" class="btn-secondary py-3">
+                                RM100
+                            </button>
+                        </div>
+
+                        <div class="bg-yellow-50 border-2 border-yellow-200 rounded-lg p-4 mb-6">
+                            <div class="flex items-start">
+                                <span class="text-2xl mr-3">ℹ️</span>
+                                <div>
+                                    <p class="font-semibold text-gray-800 mb-1">Maklumat Pembayaran</p>
+                                    <ul class="text-sm text-gray-700 space-y-1">
+                                        <li>• Pembayaran melalui ToyyibPay</li>
+                                        <li>• Top-up minimum: RM10.00</li>
+                                        <li>• Baki dikemas kini automatik</li>
+                                        <li>• Selamat & dipercayai</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn-primary w-full text-lg py-4">
+                            Bayar dengan ToyyibPay 💳
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+      <!-- HISTORY PAGE -->
+        <div id="historyPage" class="hidden fade-in">
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold mb-2">Sejarah Transaksi</h1>
+                <p class="text-gray-600">Semak semua pembelian dan top-up anda</p>
+            </div>
+
+            <!-- Filter Tabs -->
+            <div class="card mb-6">
+                <div class="flex space-x-4 border-b border-gray-200 pb-4">
+                    <button onclick="filterHistory('all')" class="px-4 py-2 font-semibold lime-accent border-b-2 border-lime-600">
+                        Semua
+                    </button>
+                    <button onclick="filterHistory('purchase')" class="px-4 py-2 font-semibold text-gray-600 hover:text-gray-800">
+                        Pembelian
+                    </button>
+                    <button onclick="filterHistory('topup')" class="px-4 py-2 font-semibold text-gray-600 hover:text-gray-800">
+                        Top-up
+                    </button>
+                </div>
+            </div>
+
+            <!-- History List -->
+            <div id="historyList" class="space-y-4">
+                <!-- Sample Transaction 1 -->
+                <div class="card hover:shadow-lg transition-shadow">
+                    <div class="flex justify-between items-start">
+                        <div class="flex items-start">
+                            <div class="text-3xl mr-4">☕</div>
+                            <div>
+                                <h3 class="font-bold text-lg">Zus Coffee</h3>
+                                <p class="text-sm text-gray-600">Provider 1</p>
+                                <p class="text-sm text-gray-500 mt-1">Nombor: +60198765432</p>
+                                <p class="text-xs text-gray-400 mt-2">24 Nov 2024, 10:30 AM</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-bold text-lg text-red-600">-RM1.00</p>
+                            <span class="inline-block bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full mt-2">
+                                Selesai
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sample Transaction 2 -->
+                <div class="card hover:shadow-lg transition-shadow">
+                    <div class="flex justify-between items-start">
+                        <div class="flex items-start">
+                            <div class="text-3xl mr-4">💳</div>
+                            <div>
+                                <h3 class="font-bold text-lg">Top-up Baki</h3>
+                                <p class="text-sm text-gray-600">ToyyibPay</p>
+                                <p class="text-xs text-gray-400 mt-2">23 Nov 2024, 3:15 PM</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-bold text-lg lime-accent">+RM20.00</p>
+                            <span class="inline-block bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full mt-2">
+                                Selesai
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sample Transaction 3 -->
+                <div class="card hover:shadow-lg transition-shadow">
+                    <div class="flex justify-between items-start">
+                        <div class="flex items-start">
+                            <div class="text-3xl mr-4">🍵</div>
+                            <div>
+                                <h3 class="font-bold text-lg">Chagee</h3>
+                                <p class="text-sm text-gray-600">Provider 2</p>
+                                <p class="text-sm text-gray-500 mt-1">Nombor: +60187654321</p>
+                                <p class="text-xs text-gray-400 mt-2">23 Nov 2024, 2:45 PM</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-bold text-lg text-red-600">-RM1.00</p>
+                            <span class="inline-block bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full mt-2">
+                                Selesai
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FAQ PAGE -->
+        <div id="faqPage" class="hidden fade-in">
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold mb-2">Soalan Lazim (FAQ)</h1>
+                <p class="text-gray-600">Cari jawapan untuk soalan anda di sini</p>
+            </div>
+
+            <div class="space-y-4">
+                <!-- FAQ 1 -->
+                <div class="card">
+                    <button onclick="toggleFaq(1)" class="w-full text-left">
+                        <div class="flex justify-between items-center">
+                            <h3 class="font-bold text-lg">Apakah itu Lemon?</h3>
+                            <span id="faq-icon-1" class="text-2xl">+</span>
+                        </div>
+                    </button>
+                    <div id="faq-content-1" class="hidden mt-4 text-gray-700">
+                        Lemon adalah platform yang menyediakan nombor virtual Malaysia untuk menerima OTP dan verifikasi dari pelbagai perkhidmatan seperti Zus Coffee, Chagee, Tealive, KFC, dan Foodpanda.
+                    </div>
+                </div>
+
+                <!-- FAQ 2 -->
+                <div class="card">
+                    <button onclick="toggleFaq(2)" class="w-full text-left">
+                        <div class="flex justify-between items-center">
+                            <h3 class="font-bold text-lg">Bagaimana cara membeli nombor virtual?</h3>
+                            <span id="faq-icon-2" class="text-2xl">+</span>
+                        </div>
+                    </button>
+                    <div id="faq-content-2" class="hidden mt-4 text-gray-700">
+                        <ol class="list-decimal ml-5 space-y-2">
+                            <li>Daftar akaun dan verifikasi dengan OTP</li>
+                            <li>Top-up baki minimum RM10 melalui ToyyibPay</li>
+                            <li>Pilih perkhidmatan yang anda perlukan</li>
+                            <li>Klik "Beli Sekarang" (RM1 setiap nombor)</li>
+                            <li>Nombor virtual akan dipaparkan serta-merta</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <!-- FAQ 3 -->
+                <div class="card">
+                    <button onclick="toggleFaq(3)" class="w-full text-left">
+                        <div class="flex justify-between items-center">
+                            <h3 class="font-bold text-lg">Berapa harga setiap nombor?</h3>
+                            <span id="faq-icon-3" class="text-2xl">+</span>
+                        </div>
+                    </button>
+                    <div id="faq-content-3" class="hidden mt-4 text-gray-700">
+                        Setiap nombor virtual berharga RM1.00 sahaja. Harga ini sudah termasuk semua caj dan tiada bayaran tersembunyi.
+                    </div>
+                </div>
+
+                <!-- FAQ 4 -->
+                <div class="card">
+                    <button onclick="toggleFaq(4)" class="w-full text-left">
+                        <div class="flex justify-between items-center">
+                            <h3 class="font-bold text-lg">Bagaimana cara top-up baki?</h3>
+                            <span id="faq-icon-4" class="text-2xl">+</span>
+                        </div>
+                    </button>
+                    <div id="faq-content-4" class="hidden mt-4 text-gray-700">
+                        Anda boleh top-up baki melalui ToyyibPay dengan jumlah minimum RM10. Baki akan dikemas kini secara automatik selepas pembayaran berjaya.
+                    </div>
+                </div>
+
+                <!-- FAQ 5 -->
+                <div class="card">
+                    <button onclick="toggleFaq(5)" class="w-full text-left">
+                        <div class="flex justify-between items-center">
+                            <h3 class="font-bold text-lg">Berapa lama nombor virtual akan aktif?</h3>
+                            <span id="faq-icon-5" class="text-2xl">+</span>
+                        </div>
+                    </button>
+                    <div id="faq-content-5" class="hidden mt-4 text-gray-700">
+                        Nombor virtual akan aktif untuk menerima OTP selama 15-30 minit bergantung kepada provider. Pastikan anda menggunakan nombor dengan segera selepas pembelian.
+                    </div>
+                </div>
+
+                <!-- FAQ 6 -->
+                <div class="card">
+                    <button onclick="toggleFaq(6)" class="w-full text-left">
+                        <div class="flex justify-between items-center">
+                            <h3 class="font-bold text-lg">Adakah selamat menggunakan Lemon?</h3>
+                            <span id="faq-icon-6" class="text-2xl">+</span>
+                        </div>
+                    </button>
+                    <div id="faq-content-6" class="hidden mt-4 text-gray-700">
+                        Ya, sangat selamat! Kami menggunakan enkripsi SSL dan bekerjasama dengan provider nombor virtual yang dipercayai. Semua transaksi pembayaran diproses melalui ToyyibPay yang selamat.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Support -->
+            <div class="card mt-8 bg-gradient-to-r from-yellow-100 to-yellow-200">
+                <div class="text-center">
+                    <span class="text-5xl mb-4 block">💬</span>
+                    <h3 class="text-xl font-bold mb-2">Masih ada soalan?</h3>
+                    <p class="text-gray-700 mb-4">Hubungi pasukan sokongan kami</p>
+                    <a href="mailto:support@lemon.com" class="btn-primary inline-block">
+                        Hubungi Kami
+                    </a>
+                </div>
+            </div>
+        </div>
+
+      </div>
+
+    <!-- Footer -->
+    <footer class="bg-white mt-16 py-8 border-t border-gray-200">
+        <div class="container mx-auto px-4">
+            <div class="grid md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <span class="text-3xl">🍋</span>
+                        <span class="text-xl font-bold lime-accent">Lemon</span>
+                    </div>
+                    <p class="text-gray-600 text-sm">
+                        Platform nombor virtual terpercaya di Malaysia untuk semua keperluan OTP anda.
+                    </p>
+                </div>
+
+                <div>
+                    <h4 class="font-bold mb-4">Perkhidmatan</h4>
+                    <ul class="space-y-2 text-sm text-gray-600">
+                        <li><a href="#" class="hover:text-lime-600">Zus Coffee</a></li>
+                        <li><a href="#" class="hover:text-lime-600">Chagee</a></li>
+                        <li><a href="#" class="hover:text-lime-600">Tealive</a></li>
+                        <li><a href="#" class="hover:text-lime-600">KFC</a></li>
+                        <li><a href="#" class="hover:text-lime-600">Foodpanda</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="font-bold mb-4">Syarikat</h4>
+                    <ul class="space-y-2 text-sm text-gray-600">
+                        <li><a href="#" class="hover:text-lime-600">Tentang Kami</a></li>
+                        <li><a href="#" onclick="navigateTo('faq')" class="hover:text-lime-600">FAQ</a></li>
+                        <li><a href="#" class="hover:text-lime-600">Hubungi Kami</a></li>
+                        <li><a href="#" class="hover:text-lime-600">Blog</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="font-bold mb-4">Legal</h4>
+                    <ul class="space-y-2 text-sm text-gray-600">
+                        <li><a href="#" class="hover:text-lime-600">Terma Penggunaan</a></li>
+                        <li><a href="#" class="hover:text-lime-600">Polisi Privasi</a></li>
+                        <li><a href="#" class="hover:text-lime-600">Dasar Pemulangan</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="border-t border-gray-200 mt-8 pt-8 text-center text-sm text-gray-600">
+                <p>&copy; 2024 Lemon 🍋. Hak Cipta Terpelihara.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // State Management
+        let currentUser = null;
+        let isAuthenticated = false;
+        let currentBalance = 0;
+        let pendingRegistration = null;
+
+        // Initialize App
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAuthStatus();
+            updateNavigation();
+            navigateTo('home');
+        });
+
+        // Check Authentication Status
+        function checkAuthStatus() {
+            const savedUser = localStorage.getItem('lemonUser');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                isAuthenticated = true;
+                currentBalance = currentUser.balance || 1.00;
+                updateAllBalanceDisplays();
+            }
+        }
+
+        // Navigation System
+        function navigateTo(page) {
+            // Hide all pages
+            const pages = ['home', 'register', 'login', 'dashboard', 'purchase', 'topup', 'history', 'faq'];
+            pages.forEach(p => {
+                const pageElement = document.getElementById(p + 'Page');
+                if (pageElement) {
+                    pageElement.classList.add('hidden');
+                }
+            });
+
+            // Check authentication for protected pages
+            const protectedPages = ['dashboard', 'purchase', 'topup', 'history'];
+            if (protectedPages.includes(page) && !isAuthenticated) {
+                alert('Sila log masuk terlebih dahulu');
+                navigateTo('login');
+                return;
+            }
+
+            // Show selected page
+            const targetPage = document.getElementById(page + 'Page');
+            if (targetPage) {
+                targetPage.classList.remove('hidden');
+                targetPage.classList.add('fade-in');
+            }
+
+            // Update balance displays when navigating to relevant pages
+            if (['dashboard', 'purchase', 'topup'].includes(page)) {
+                updateAllBalanceDisplays();
+            }
+
+            // Close mobile menu if open
+            closeMobileMenu();
+
+            // Scroll to top
+            window.scrollTo(0, 0);
+        }
+
+        // Update Navigation
+        function updateNavigation() {
+            const desktopNav = document.getElementById('desktopNav');
+            const mobileNav = document.getElementById('mobileNavLinks');
+
+            let navHTML = '';
+
+            if (isAuthenticated) {
+                navHTML = `
+                    <a onclick="navigateTo('dashboard')" class="cursor-pointer hover:text-lime-600 font-semibold">Dashboard</a>
+                    <a onclick="navigateTo('purchase')" class="cursor-pointer hover:text-lime-600 font-semibold">Beli Nombor</a>
+                    <a onclick="navigateTo('topup')" class="cursor-pointer hover:text-lime-600 font-semibold">Top Up</a>
+                    <a onclick="navigateTo('history')" class="cursor-pointer hover:text-lime-600 font-semibold">Sejarah</a>
+                    <a onclick="navigateTo('faq')" class="cursor-pointer hover:text-lime-600 font-semibold">FAQ</a>
+                    <button onclick="handleLogout()" class="btn-primary">Log Keluar</button>
+                `;
+            } else {
+                navHTML = `
+                    <a onclick="navigateTo('home')" class="cursor-pointer hover:text-lime-600 font-semibold">Utama</a>
+                    <a onclick="navigateTo('faq')" class="cursor-pointer hover:text-lime-600 font-semibold">FAQ</a>
+                    <button onclick="navigateTo('login')" class="btn-secondary">Log Masuk</button>
+                    <button onclick="navigateTo('register')" class="btn-primary">Daftar</button>
+                `;
+            }
+
+            if (desktopNav) desktopNav.innerHTML = navHTML;
+            if (mobileNav) {
+                mobileNav.innerHTML = navHTML.replace(/class="btn-/g, 'class="block text-center btn-');
+            }
+        }
+
+      // Mobile Menu Functions
+        function toggleMobileMenu() {
+            const mobileMenu = document.getElementById('mobileMenu');
+            const overlay = document.getElementById('overlay');
+            
+            mobileMenu.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
+
+        function closeMobileMenu() {
+            const mobileMenu = document.getElementById('mobileMenu');
+            const overlay = document.getElementById('overlay');
+            
+            mobileMenu.classList.remove('active');
+            overlay.classList.remove('active');
+        }
+
+        // Registration Handler
+        function handleRegister(event) {
+            event.preventDefault();
+
+            const email = document.getElementById('registerEmail').value;
+            const phone = document.getElementById('registerPhone').value;
+            const password = document.getElementById('registerPassword').value;
+
+            // Validate inputs
+            if (!email || !phone || !password) {
+                alert('Sila isi semua maklumat');
+                return;
+            }
+
+            // Store pending registration
+            pendingRegistration = {
+                email: email,
+                phone: phone,
+                password: password,
+                balance: 1.00,
+                registeredAt: new Date().toISOString()
+            };
+
+            // Show OTP modal
+            document.getElementById('otpModal').classList.remove('hidden');
+            
+            // Simulate OTP sent
+            alert('Kod OTP telah dihantar ke ' + phone + '\n\nUntuk demo, gunakan kod: 123456');
+        }
+
+        // OTP Verification Handler
+        function handleVerifyOtp(event) {
+            event.preventDefault();
+
+            const otpInput = document.getElementById('otpInput').value;
+
+            // Simple validation (in production, verify with backend)
+            if (otpInput.length !== 6) {
+                alert('Sila masukkan 6 digit OTP');
+                return;
+            }
+
+            // For demo purposes, accept any 6-digit code
+            if (otpInput === '123456' || otpInput.length === 6) {
+                // Create user account
+                currentUser = {
+                    ...pendingRegistration,
+                    id: Date.now().toString(),
+                    purchases: [],
+                    transactions: [{
+                        id: 1,
+                        type: 'bonus',
+                        amount: 1.00,
+                        description: 'Baki percuma pendaftaran',
+                        date: new Date().toISOString()
+                    }]
+                };
+
+                // Save to localStorage
+                localStorage.setItem('lemonUser', JSON.stringify(currentUser));
+
+                isAuthenticated = true;
+                currentBalance = currentUser.balance;
+
+                // Close OTP modal
+                closeOtpModal();
+
+                // Update navigation
+                updateNavigation();
+
+                // Navigate to dashboard
+                navigateTo('dashboard');
+                updateAllBalanceDisplays();
+
+                alert('🎉 Pendaftaran berjaya! Anda menerima RM1.00 baki percuma.');
+
+                // Clear form
+                document.getElementById('registerEmail').value = '';
+                document.getElementById('registerPhone').value = '';
+                document.getElementById('registerPassword').value = '';
+            } else {
+                alert('Kod OTP tidak sah. Sila cuba lagi.');
+            }
+        }
+
+        // Close OTP Modal
+        function closeOtpModal() {
+            document.getElementById('otpModal').classList.add('hidden');
+            document.getElementById('otpInput').value = '';
+        }
+
+        // Login Handler
+        function handleLogin(event) {
+            event.preventDefault();
+
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            // Check if user exists in localStorage
+            const savedUser = localStorage.getItem('lemonUser');
+
+            if (savedUser) {
+                const user = JSON.parse(savedUser);
+                
+                if (user.email === email && user.password === password) {
+                    currentUser = user;
+                    isAuthenticated = true;
+                    currentBalance = user.balance || 1.00;
+
+                    updateNavigation();
+                    navigateTo('dashboard');
+                    updateAllBalanceDisplays();
+
+                    alert('Selamat kembali ke Lemon! 🍋');
+
+                    // Clear form
+                    document.getElementById('loginEmail').value = '';
+                    document.getElementById('loginPassword').value = '';
+                } else {
+                    alert('Email atau kata laluan tidak sah');
+                }
+            } else {
+                alert('Akaun tidak dijumpai. Sila daftar terlebih dahulu.');
+            }
+        }
+
+        // Logout Handler
+        function handleLogout() {
+            if (confirm('Adakah anda pasti mahu log keluar?')) {
+                currentUser = null;
+                isAuthenticated = false;
+                currentBalance = 0;
+
+                updateNavigation();
+                navigateTo('home');
+
+                alert('Anda telah log keluar. Terima kasih! 🍋');
+            }
+        }
+
+        // Update All Balance Displays
+        function updateAllBalanceDisplays() {
+            const balanceDisplays = [
+                'balanceDisplay',
+                'purchaseBalance',
+                'topupBalance'
+            ];
+
+            balanceDisplays.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.textContent = 'RM ' + currentBalance.toFixed(2);
+                }
+            });
+
+            // Update stats
+            const totalPurchasesElement = document.getElementById('totalPurchases');
+            const activeNumbersElement = document.getElementById('activeNumbers');
+
+            if (totalPurchasesElement && currentUser) {
+                totalPurchasesElement.textContent = currentUser.purchases ? currentUser.purchases.length : 0;
+            }
+
+            if (activeNumbersElement && currentUser) {
+                activeNumbersElement.textContent = currentUser.purchases ? currentUser.purchases.length : 0;
+            }
+
+            // Update recent transactions
+            updateRecentTransactions();
+        }
+
+      // Update Recent Transactions
+        function updateRecentTransactions() {
+            const container = document.getElementById('recentTransactions');
+            if (!container || !currentUser || !currentUser.transactions) return;
+
+            if (currentUser.transactions.length === 0) {
+                container.innerHTML = '<p class="text-center text-gray-500 py-8">Tiada transaksi lagi</p>';
+                return;
+            }
+
+            // Show last 3 transactions
+            const recentTransactions = currentUser.transactions.slice(-3).reverse();
+            
+            let html = '<div class="space-y-3">';
+            
+            recentTransactions.forEach(transaction => {
+                const isPositive = transaction.type === 'topup' || transaction.type === 'bonus';
+                const icon = transaction.type === 'topup' ? '💳' : (transaction.type === 'purchase' ? '📱' : '🎁');
+                const amountClass = isPositive ? 'lime-accent' : 'text-red-600';
+                const sign = isPositive ? '+' : '-';
+                
+                html += `
+                    <div class="flex justify-between items-center py-3 border-b border-gray-100">
+                        <div class="flex items-center">
+                            <span class="text-2xl mr-3">${icon}</span>
+                            <div>
+                                <p class="font-semibold text-sm">${transaction.description}</p>
+                                <p class="text-xs text-gray-500">${new Date(transaction.date).toLocaleString('ms-MY')}</p>
+                            </div>
+                        </div>
+                        <p class="font-bold ${amountClass}">${sign}RM${Math.abs(transaction.amount).toFixed(2)}</p>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        // Select Service for Purchase
+        function selectService(serviceId) {
+            // Check balance first
+            if (currentBalance < 1.00) {
+                document.getElementById('lowBalanceWarning').classList.remove('hidden');
+                alert('Baki tidak mencukupi! Sila top-up sekurang-kurangnya RM1.00');
+                return;
+            }
+
+            document.getElementById('lowBalanceWarning').classList.add('hidden');
+
+            const services = {
+                'zus-p1': { name: 'Zus Coffee', provider: 'Provider 1', icon: '☕' },
+                'zus-p2': { name: 'Zus Coffee', provider: 'Provider 2', icon: '☕' },
+                'chagee': { name: 'Chagee', provider: 'Provider 2', icon: '🍵' },
+                'tealive': { name: 'Tealive', provider: 'Provider 2', icon: '🧋' },
+                'kfc': { name: 'KFC', provider: 'Provider 2', icon: '🍗' },
+                'foodpanda': { name: 'Foodpanda', provider: 'Provider 2', icon: '🍕' }
+            };
+
+            const service = services[serviceId];
+            
+            if (confirm(`Beli nombor untuk ${service.name} (${service.provider})?\n\nHarga: RM1.00`)) {
+                processPurchase(service);
+            }
+        }
+
+        // Process Purchase
+        function processPurchase(service) {
+            // Deduct balance
+            currentBalance -= 1.00;
+
+            // Generate virtual number
+            const virtualNumber = '+6019' + Math.floor(10000000 + Math.random() * 90000000);
+
+            // Create purchase record
+            const purchase = {
+                id: Date.now(),
+                service: service.name,
+                provider: service.provider,
+                icon: service.icon,
+                number: virtualNumber,
+                price: 1.00,
+                date: new Date().toISOString(),
+                status: 'Aktif'
+            };
+
+            // Add to user purchases
+            if (!currentUser.purchases) {
+                currentUser.purchases = [];
+            }
+            currentUser.purchases.push(purchase);
+
+            // Add transaction record
+            if (!currentUser.transactions) {
+                currentUser.transactions = [];
+            }
+            currentUser.transactions.push({
+                id: Date.now(),
+                type: 'purchase',
+                amount: 1.00,
+                description: `${service.name} - ${service.provider}`,
+                date: new Date().toISOString()
+            });
+
+            // Update user balance
+            currentUser.balance = currentBalance;
+
+            // Save to localStorage
+            localStorage.setItem('lemonUser', JSON.stringify(currentUser));
+
+            // Update displays
+            updateAllBalanceDisplays();
+
+            // Show success message
+            alert(`✅ Pembelian Berjaya!\n\n${service.icon} ${service.name}\nNombor Virtual: ${virtualNumber}\n\nBaki Baharu: RM${currentBalance.toFixed(2)}`);
+        }
+
+        // Set Top-up Amount (Quick buttons)
+        function setTopupAmount(amount) {
+            document.getElementById('topupAmount').value = amount;
+        }
+
+        // Handle Top-up
+        function handleTopup(event) {
+            event.preventDefault();
+
+            const amount = parseFloat(document.getElementById('topupAmount').value);
+
+            if (amount < 10) {
+                alert('Jumlah minimum top-up adalah RM10.00');
+                return;
+            }
+
+            // Simulate ToyyibPay payment
+            if (confirm(`Teruskan pembayaran RM${amount.toFixed(2)} melalui ToyyibPay?`)) {
+                // Simulate payment processing
+                setTimeout(() => {
+                    // Add balance
+                    currentBalance += amount;
+
+                    // Add transaction record
+                    if (!currentUser.transactions) {
+                        currentUser.transactions = [];
+                    }
+                    currentUser.transactions.push({
+                        id: Date.now(),// Filter History
+        function filterHistory(type) {
+            // Update active tab styling
+            const tabs = document.querySelectorAll('#historyPage button');
+            tabs.forEach(tab => {
+                tab.classList.remove('lime-accent', 'border-b-2', 'border-lime-600');
+                tab.classList.add('text-gray-600');
+            });
+
+            event.target.classList.remove('text-gray-600');
+            event.target.classList.add('lime-accent', 'border-b-2', 'border-lime-600');
+
+            // Filter and display transactions
+            if (!currentUser || !currentUser.transactions) return;
+
+            let filteredTransactions = currentUser.transactions;
+
+            if (type === 'purchase') {
+                filteredTransactions = currentUser.transactions.filter(t => t.type === 'purchase');
+            } else if (type === 'topup') {
+                filteredTransactions = currentUser.transactions.filter(t => t.type === 'topup' || t.type === 'bonus');
+            }
+
+            displayHistory(filteredTransactions);
+        }
+
+        // Display History
+        function displayHistory(transactions) {
+            const container = document.getElementById('historyList');
+            if (!container) return;
+
+            if (transactions.length === 0) {
+                container.innerHTML = '<div class="card"><p class="text-center text-gray-500 py-8">Tiada transaksi dijumpai</p></div>';
+                return;
+            }
+
+            let html = '';
+            transactions.reverse().forEach(transaction => {
+                const isPositive = transaction.type === 'topup' || transaction.type === 'bonus';
+                const icon = transaction.type === 'topup' ? '💳' : (transaction.type === 'purchase' ? '📱' : '🎁');
+                const amountClass = isPositive ? 'lime-accent' : 'text-red-600';
+                const sign = isPositive ? '+' : '-';
+
+                html += `
+                    <div class="card hover:shadow-lg transition-shadow">
+                        <div class="flex justify-between items-start">
+                            <div class="flex items-start">
+                                <div class="text-3xl mr-4">${icon}</div>
+                                <div>
+                                    <h3 class="font-bold text-lg">${transaction.description}</h3>
+                                    <p class="text-sm text-gray-600">${transaction.type === 'purchase' ? 'Pembelian Nombor' : (transaction.type === 'topup' ? 'Top-up Baki' : 'Bonus')}</p>
+                                    <p class="text-xs text-gray-400 mt-2">${new Date(transaction.date).toLocaleString('ms-MY')}</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <p class="font-bold text-lg ${amountClass}">${sign}RM${Math.abs(transaction.amount).toFixed(2)}</p>
+                                <span class="inline-block bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full mt-2">
+                                    Selesai
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        // Toggle FAQ
+        function toggleFaq(id) {
+            const content = document.getElementById(`faq-content-${id}`);
+            const icon = document.getElementById(`faq-icon-${id}`);
+
+            if (content.classList.contains('hidden')) {
+                content.classList.remove('hidden');
+                icon.textContent = '−';
+            } else {
+                content.classList.add('hidden');
+                icon.textContent = '+';
+            }
+        }
+
+        // Helper: Format Currency
+        function formatCurrency(amount) {
+            return 'RM ' + amount.toFixed(2);
+        }
+
+        // Helper: Format Date
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('ms-MY', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // Check balance on purchase page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add event listener for purchase page
+            const observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    if (mutation.target.id === 'purchasePage' && !mutation.target.classList.contains('hidden')) {
+                        if (currentBalance < 1.00) {
+                            document.getElementById('lowBalanceWarning').classList.remove('hidden');
+                        } else {
+                            document.getElementById('lowBalanceWarning').classList.add('hidden');
+                        }
+                    }
+                });
+            });
+
+            const purchasePage = document.getElementById('purchasePage');
+            if (purchasePage) {
+                observer.observe(purchasePage, { attributes: true, attributeFilter: ['class'] });
+            }
+        });
+    </script>
+</body>
+</html>
+                        type: 'topup',
+                        amount: amount,
+                        description: 'Top-up melalui ToyyibPay',
+                        date: new Date().toISOString()
+                    });
+
+                    // Update user balance
+                    currentUser.balance = currentBalance;
+
+                    // Save to localStorage
+                    localStorage.setItem('lemonUser', JSON.stringify(currentUser));
+
+                    // Update displays
+                    updateAllBalanceDisplays();
+
+                    // Clear form
+                    document.getElementById('topupAmount').value = '10';
+
+                    // Show success
+                    alert(`✅ Top-up Berjaya!\n\nJumlah: RM${amount.toFixed(2)}\nBaki Baharu: RM${currentBalance.toFixed(2)}`);
+
+                    // Navigate to dashboard
+                    navigateTo('dashboard');
+                }, 1000);
+            }
+        }
+
+      
